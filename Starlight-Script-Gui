@@ -1,0 +1,95 @@
+-- Fancy Rainbow Pixel Star Toggle Button for GUI with Click Animation and Sound
+
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local gui = Instance.new("ScreenGui")
+gui.Name = "RainbowPixelGui"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+-- Rainbow Frame (Transparent)
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 200, 0, 100)
+frame.Position = UDim2.new(0.5, -100, 0.5, -50)
+frame.AnchorPoint = Vector2.new(0.5, 0.5)
+frame.BackgroundTransparency = 1
+frame.BorderSizePixel = 0
+frame.Parent = gui
+
+local uiCorner = Instance.new("UICorner")
+uiCorner.CornerRadius = UDim.new(0, 4)
+uiCorner.Parent = frame
+
+local uiStroke = Instance.new("UIStroke")
+uiStroke.Thickness = 3
+uiStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uiStroke.Color = Color3.fromRGB(255, 0, 0)
+uiStroke.Parent = frame
+
+-- Toggle Button
+local toggleButton = Instance.new("ImageButton")
+toggleButton.Name = "ToggleRainbowGUI"
+toggleButton.Size = UDim2.new(0, 50, 0, 50)
+toggleButton.Position = UDim2.new(0, 10, 0, 10)
+toggleButton.BackgroundTransparency = 1
+toggleButton.Image = "rbxassetid://71341445196625" -- Your star uploaded image
+toggleButton.Parent = gui
+
+-- Button Rainbow Outline
+local buttonStroke = Instance.new("UIStroke")
+buttonStroke.Thickness = 3
+buttonStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+buttonStroke.Color = Color3.fromRGB(255, 0, 0)
+buttonStroke.Parent = toggleButton
+
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(1, 0) -- Circle
+buttonCorner.Parent = toggleButton
+
+-- Sound when clicked
+local clickSound = Instance.new("Sound")
+clickSound.SoundId = "rbxassetid://499381494"
+clickSound.Volume = 1
+clickSound.Parent = toggleButton
+
+-- Toggle behavior
+local visible = true
+toggleButton.MouseButton1Click:Connect(function()
+    -- Play click sound
+    clickSound:Play()
+
+    -- Shrink Animation
+    local shrinkTween = TweenService:Create(toggleButton, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        Size = UDim2.new(0, 45, 0, 45)
+    })
+    local growTween = TweenService:Create(toggleButton, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        Size = UDim2.new(0, 50, 0, 50)
+    })
+
+    shrinkTween:Play()
+    shrinkTween.Completed:Wait()
+    growTween:Play()
+
+    -- Toggle the frame visibility
+    visible = not visible
+    frame.Visible = visible
+end)
+
+-- Smooth Rainbow Effect
+spawn(function()
+	local hue = 0
+	while true do
+		hue = (hue + 0.005) % 1
+		local color = Color3.fromHSV(hue, 1, 1)
+		if frame.Visible then
+			TweenService:Create(uiStroke, TweenInfo.new(0.1, Enum.EasingStyle.Linear), {
+				Color = color
+			}):Play()
+		end
+		TweenService:Create(buttonStroke, TweenInfo.new(0.1, Enum.EasingStyle.Linear), {
+			Color = color
+		}):Play()
+		wait(0.05)
+	end
+end)
