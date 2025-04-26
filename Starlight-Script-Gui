@@ -1,20 +1,37 @@
--- Fancy Rainbow Pixel Star Toggle Button (32x32) with Click & Hover Sounds and Smooth Page Transitions
-
 local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
+
+-- TweenInfos
+local fastTweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+local popTweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+local fadeTweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Linear)
+
+-- GUI Setup
 local gui = Instance.new("ScreenGui")
 gui.Name = "RainbowPixelGui"
 gui.ResetOnSpawn = false
 gui.Parent = player:WaitForChild("PlayerGui")
 
--- Rainbow Frame (Transparent, Bigger Size)
+-- Glow Effect (Optional)
+local glowFrame = Instance.new("ImageLabel")
+glowFrame.Size = UDim2.new(0, 450, 0, 300)
+glowFrame.Position = UDim2.new(0.5, -225, 0.5, -150)
+glowFrame.BackgroundTransparency = 1
+glowFrame.Image = "rbxassetid://yourGlowEffectID" -- replace with a nice blurred glow asset
+glowFrame.ImageTransparency = 0.85
+glowFrame.ZIndex = 0
+glowFrame.Parent = gui
+
+-- Main Frame
 local frame = Instance.new("Frame")
 frame.Size = UDim2.new(0, 400, 0, 250)
 frame.Position = UDim2.new(0.5, -200, 0.5, -125)
 frame.AnchorPoint = Vector2.new(0.5, 0.5)
 frame.BackgroundTransparency = 1
 frame.BorderSizePixel = 0
+frame.ZIndex = 1
 frame.Parent = gui
 frame.Visible = true
 
@@ -30,17 +47,18 @@ uiStroke.Parent = frame
 
 -- Pop-In Animation
 frame.Size = UDim2.new(0, 0, 0, 0)
-TweenService:Create(frame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+TweenService:Create(frame, popTweenInfo, {
 	Size = UDim2.new(0, 400, 0, 250)
 }):Play()
 
--- Toggle Button (32x32)
+-- Toggle Button
 local toggleButton = Instance.new("ImageButton")
 toggleButton.Name = "ToggleRainbowGUI"
 toggleButton.Size = UDim2.new(0, 32, 0, 32)
 toggleButton.Position = UDim2.new(0, 15, 0, 15)
 toggleButton.BackgroundTransparency = 1
 toggleButton.Image = "rbxassetid://71341445196625"
+toggleButton.ZIndex = 2
 toggleButton.Parent = gui
 
 local buttonStroke = Instance.new("UIStroke")
@@ -75,18 +93,19 @@ tabClickSound.SoundId = "rbxassetid://12222141"
 tabClickSound.Volume = 0.7
 tabClickSound.Parent = gui
 
+local whooshSound = Instance.new("Sound")
+whooshSound.SoundId = "rbxassetid://9120705982"
+whooshSound.Volume = 0.5
+whooshSound.Parent = gui
+
 -- Hover Glow
 toggleButton.MouseEnter:Connect(function()
-	TweenService:Create(glowStroke, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-		Transparency = 0.5
-	}):Play()
+	TweenService:Create(glowStroke, fastTweenInfo, {Transparency = 0.5}):Play()
 	hoverSound:Play()
 end)
 
 toggleButton.MouseLeave:Connect(function()
-	TweenService:Create(glowStroke, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-		Transparency = 1
-	}):Play()
+	TweenService:Create(glowStroke, fastTweenInfo, {Transparency = 1}):Play()
 end)
 
 -- Toggle GUI
@@ -94,55 +113,53 @@ local visible = true
 toggleButton.MouseButton1Click:Connect(function()
 	clickSound:Play()
 
-	TweenService:Create(toggleButton, TweenInfo.new(0.1, Enum.EasingStyle.Quad), {
-		Size = UDim2.new(0, 28, 0, 28)
-	}):Play()
+	TweenService:Create(toggleButton, fastTweenInfo, {Size = UDim2.new(0, 28, 0, 28)}):Play()
 	wait(0.1)
-	TweenService:Create(toggleButton, TweenInfo.new(0.1, Enum.EasingStyle.Quad), {
-		Size = UDim2.new(0, 32, 0, 32)
-	}):Play()
+	TweenService:Create(toggleButton, fastTweenInfo, {Size = UDim2.new(0, 32, 0, 32)}):Play()
 
-	visible = not visible
 	if visible then
-		frame.Size = UDim2.new(0, 0, 0, 0)
-		frame.Visible = true
-		TweenService:Create(frame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-			Size = UDim2.new(0, 400, 0, 250)
-		}):Play()
-	else
+		-- Fade out frame
+		TweenService:Create(toggleButton, fadeTweenInfo, {ImageTransparency = 0.5}):Play()
 		local shrinkTween = TweenService:Create(frame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In), {
 			Size = UDim2.new(0, 0, 0, 0)
 		})
 		shrinkTween:Play()
 		shrinkTween.Completed:Wait()
 		frame.Visible = false
+	else
+		-- Fade in frame
+		frame.Size = UDim2.new(0, 0, 0, 0)
+		frame.Visible = true
+		TweenService:Create(toggleButton, fadeTweenInfo, {ImageTransparency = 0}):Play()
+		TweenService:Create(frame, popTweenInfo, {
+			Size = UDim2.new(0, 400, 0, 250)
+		}):Play()
 	end
+	visible = not visible
 end)
 
--- Rainbow Border
-spawn(function()
-	local hue = 0
-	while true do
-		hue = (hue + 0.005) % 1
-		local color = Color3.fromHSV(hue, 1, 1)
-		if frame.Visible then
-			TweenService:Create(uiStroke, TweenInfo.new(0.1, Enum.EasingStyle.Linear), {Color = color}):Play()
-		end
-		TweenService:Create(buttonStroke, TweenInfo.new(0.1, Enum.EasingStyle.Linear), {Color = color}):Play()
+-- Rainbow Color Cycling
+local hue = 0
+RunService.Heartbeat:Connect(function(deltaTime)
+	hue = (hue + deltaTime * 0.5) % 1
+	local color = Color3.fromHSV(hue, 1, 1)
 
-		for _, child in ipairs(frame:GetChildren()) do
-			if child:IsA("TextButton") or child:IsA("Frame") then
-				local stroke = child:FindFirstChildOfClass("UIStroke")
-				if stroke then
-					stroke.Color = color
-				end
+	if frame.Visible then
+		TweenService:Create(uiStroke, fadeTweenInfo, {Color = color}):Play()
+	end
+	TweenService:Create(buttonStroke, fadeTweenInfo, {Color = color}):Play()
+
+	for _, child in ipairs(frame:GetChildren()) do
+		if child:IsA("TextButton") or child:IsA("Frame") then
+			local stroke = child:FindFirstChildOfClass("UIStroke")
+			if stroke then
+				stroke.Color = color
 			end
 		end
-		wait(0.05)
 	end
 end)
 
--- Tabs and Pages
+-- Tabs & Pages
 local tabNames = {
 	"Home", "Update", "Esp", "Emotes", "Custom",
 	"Keybinds", "Teleport", "Combat", "Auto",
@@ -164,6 +181,7 @@ for i, name in ipairs(tabNames) do
 	tab.Font = Enum.Font.Arcade
 	tab.TextSize = 14
 	tab.AutoButtonColor = false
+	tab.ZIndex = 2
 	tab.Parent = frame
 
 	local tabStroke = Instance.new("UIStroke")
@@ -182,6 +200,7 @@ for i, name in ipairs(tabNames) do
 	page.Position = UDim2.new(0, 10, 0, 10)
 	page.BackgroundTransparency = 1
 	page.Visible = (i == 1)
+	page.ZIndex = 1
 	page.Parent = frame
 	pages[name] = page
 
@@ -203,29 +222,21 @@ for i, name in ipairs(tabNames) do
 
 	-- Hover highlight
 	tab.MouseEnter:Connect(function()
-		TweenService:Create(tab, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
-			TextColor3 = Color3.fromRGB(255, 255, 0)
-		}):Play()
+		TweenService:Create(tab, fastTweenInfo, {TextColor3 = Color3.fromRGB(255, 255, 0)}):Play()
 	end)
 	tab.MouseLeave:Connect(function()
-		TweenService:Create(tab, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
-			TextColor3 = Color3.fromRGB(255, 255, 255)
-		}):Play()
+		TweenService:Create(tab, fastTweenInfo, {TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
 	end)
 
 	-- Tab button click
 	tab.MouseButton1Click:Connect(function()
 		tabClickSound:Play()
+		whooshSound:Play()
 
 		if currentPage and currentPage ~= page then
-			-- Fade out + slide left old page
 			local oldPage = currentPage
-			local fadeOut = TweenService:Create(oldPage, TweenInfo.new(0.3), {
-				BackgroundTransparency = 1
-			})
-			local slideOut = TweenService:Create(oldPage, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-				Position = UDim2.new(-1, 10, 0, 10)
-			})
+			local fadeOut = TweenService:Create(oldPage, fastTweenInfo, {BackgroundTransparency = 1})
+			local slideOut = TweenService:Create(oldPage, fastTweenInfo, {Position = UDim2.new(-1, 10, 0, 10)})
 			fadeOut:Play()
 			slideOut:Play()
 			fadeOut.Completed:Wait()
@@ -233,16 +244,14 @@ for i, name in ipairs(tabNames) do
 			oldPage.Position = UDim2.new(0, 10, 0, 10)
 		end
 
-		-- Fade in + slide in new page
+		-- Page Mini Pop
 		page.Visible = true
 		page.BackgroundTransparency = 1
 		page.Position = UDim2.new(1, 10, 0, 10)
-		TweenService:Create(page, TweenInfo.new(0.3), {
-			BackgroundTransparency = 0
-		}):Play()
-		TweenService:Create(page, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-			Position = UDim2.new(0, 10, 0, 10)
-		}):Play()
+		page.Size = UDim2.new(0.95, 0, 0.95, 0)
+		TweenService:Create(page, fastTweenInfo, {BackgroundTransparency = 0}):Play()
+		TweenService:Create(page, fastTweenInfo, {Position = UDim2.new(0, 10, 0, 10)}):Play()
+		TweenService:Create(page, TweenInfo.new(0.2), {Size = UDim2.new(1, -20, 1, -20)}):Play()
 
 		currentPage = page
 	end)
