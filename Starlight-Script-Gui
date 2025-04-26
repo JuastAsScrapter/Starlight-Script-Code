@@ -21,7 +21,7 @@ local glowFrame = Instance.new("ImageLabel")
 glowFrame.Size = UDim2.new(0, 450, 0, 300)
 glowFrame.Position = UDim2.new(0.5, -225, 0.5, -150)
 glowFrame.BackgroundTransparency = 1
-glowFrame.Image = "rbxassetid://7134575148" -- Glow Effect ID
+glowFrame.Image = "rbxassetid://7134575148" -- Correct Glow Effect ID
 glowFrame.ImageTransparency = 0.85
 glowFrame.ZIndex = 0
 glowFrame.Parent = gui
@@ -46,16 +46,6 @@ uiStroke.Thickness = 3
 uiStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 uiStroke.Color = Color3.fromRGB(255, 0, 0)
 uiStroke.Parent = frame
-
---// Draggle Icon (Added Here)
-local draggleIcon = Instance.new("ImageLabel")
-draggleIcon.Name = "DraggleIcon"
-draggleIcon.Size = UDim2.new(0, 24, 0, 24)
-draggleIcon.Position = UDim2.new(1, -30, 0, 5)
-draggleIcon.BackgroundTransparency = 1
-draggleIcon.Image = "rbxassetid://14012507007" -- Draggle Icon ID
-draggleIcon.ZIndex = 3
-draggleIcon.Parent = frame
 
 --// Pop-In Animation
 frame.Size = UDim2.new(0, 0, 0, 0)
@@ -270,6 +260,7 @@ local dragInput
 local dragStart
 local startPos
 
+-- Save Folder
 local savedValues = player:FindFirstChild("SavedGUIValues")
 if not savedValues then
 	savedValues = Instance.new("Folder")
@@ -307,24 +298,4 @@ frame.InputBegan:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 then
 		dragging = true
 		dragStart = input.Position
-		startPos = frame.Position
-
-		input.Changed:Connect(function()
-			if input.UserInputState == Enum.UserInputState.End then
-				dragging = false
-			end
-		end)
-	end
-end)
-
-frame.InputChanged:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseMovement then
-		dragInput = input
-	end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-	if input == dragInput and dragging then
-		updateDrag(input)
-	end
-end)
+		startPos
