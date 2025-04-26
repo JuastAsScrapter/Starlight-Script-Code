@@ -1,4 +1,4 @@
--- Fancy Rainbow Pixel Star Toggle Button for GUI with Click Animation and Sound
+-- Fancy Rainbow Pixel Star Toggle Button (32x32) with Click & Hover Sounds and Smooth Page Transitions
 
 local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
@@ -8,17 +8,18 @@ gui.Name = "RainbowPixelGui"
 gui.ResetOnSpawn = false
 gui.Parent = player:WaitForChild("PlayerGui")
 
--- Rainbow Frame (Transparent)
+-- Rainbow Frame (Transparent, Bigger Size)
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 200, 0, 100)
-frame.Position = UDim2.new(0.5, -100, 0.5, -50)
+frame.Size = UDim2.new(0, 400, 0, 250)
+frame.Position = UDim2.new(0.5, -200, 0.5, -125)
 frame.AnchorPoint = Vector2.new(0.5, 0.5)
 frame.BackgroundTransparency = 1
 frame.BorderSizePixel = 0
 frame.Parent = gui
+frame.Visible = true
 
 local uiCorner = Instance.new("UICorner")
-uiCorner.CornerRadius = UDim.new(0, 4)
+uiCorner.CornerRadius = UDim.new(0, 8)
 uiCorner.Parent = frame
 
 local uiStroke = Instance.new("UIStroke")
@@ -27,69 +28,224 @@ uiStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 uiStroke.Color = Color3.fromRGB(255, 0, 0)
 uiStroke.Parent = frame
 
--- Toggle Button
+-- Pop-In Animation
+frame.Size = UDim2.new(0, 0, 0, 0)
+TweenService:Create(frame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+	Size = UDim2.new(0, 400, 0, 250)
+}):Play()
+
+-- Toggle Button (32x32)
 local toggleButton = Instance.new("ImageButton")
 toggleButton.Name = "ToggleRainbowGUI"
-toggleButton.Size = UDim2.new(0, 50, 0, 50)
-toggleButton.Position = UDim2.new(0, 10, 0, 10)
+toggleButton.Size = UDim2.new(0, 32, 0, 32)
+toggleButton.Position = UDim2.new(0, 15, 0, 15)
 toggleButton.BackgroundTransparency = 1
-toggleButton.Image = "rbxassetid://71341445196625" -- Your star uploaded image
+toggleButton.Image = "rbxassetid://71341445196625"
 toggleButton.Parent = gui
 
--- Button Rainbow Outline
 local buttonStroke = Instance.new("UIStroke")
-buttonStroke.Thickness = 3
+buttonStroke.Thickness = 2
 buttonStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 buttonStroke.Color = Color3.fromRGB(255, 0, 0)
 buttonStroke.Parent = toggleButton
 
 local buttonCorner = Instance.new("UICorner")
-buttonCorner.CornerRadius = UDim.new(1, 0) -- Circle
+buttonCorner.CornerRadius = UDim.new(1, 0)
 buttonCorner.Parent = toggleButton
 
--- Sound when clicked
+local glowStroke = Instance.new("UIStroke")
+glowStroke.Thickness = 6
+glowStroke.Transparency = 1
+glowStroke.Color = Color3.fromRGB(255, 255, 255)
+glowStroke.Parent = toggleButton
+
+-- Sounds
 local clickSound = Instance.new("Sound")
-clickSound.SoundId = "rbxassetid://499381494"
+clickSound.SoundId = "rbxassetid://12221967"
 clickSound.Volume = 1
 clickSound.Parent = toggleButton
 
--- Toggle behavior
-local visible = true
-toggleButton.MouseButton1Click:Connect(function()
-    -- Play click sound
-    clickSound:Play()
+local hoverSound = Instance.new("Sound")
+hoverSound.SoundId = "rbxassetid://6026984224"
+hoverSound.Volume = 0.6
+hoverSound.Parent = toggleButton
 
-    -- Shrink Animation
-    local shrinkTween = TweenService:Create(toggleButton, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-        Size = UDim2.new(0, 45, 0, 45)
-    })
-    local growTween = TweenService:Create(toggleButton, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-        Size = UDim2.new(0, 50, 0, 50)
-    })
+local tabClickSound = Instance.new("Sound")
+tabClickSound.SoundId = "rbxassetid://12222141"
+tabClickSound.Volume = 0.7
+tabClickSound.Parent = gui
 
-    shrinkTween:Play()
-    shrinkTween.Completed:Wait()
-    growTween:Play()
-
-    -- Toggle the frame visibility
-    visible = not visible
-    frame.Visible = visible
+-- Hover Glow
+toggleButton.MouseEnter:Connect(function()
+	TweenService:Create(glowStroke, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+		Transparency = 0.5
+	}):Play()
+	hoverSound:Play()
 end)
 
--- Smooth Rainbow Effect
+toggleButton.MouseLeave:Connect(function()
+	TweenService:Create(glowStroke, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+		Transparency = 1
+	}):Play()
+end)
+
+-- Toggle GUI
+local visible = true
+toggleButton.MouseButton1Click:Connect(function()
+	clickSound:Play()
+
+	TweenService:Create(toggleButton, TweenInfo.new(0.1, Enum.EasingStyle.Quad), {
+		Size = UDim2.new(0, 28, 0, 28)
+	}):Play()
+	wait(0.1)
+	TweenService:Create(toggleButton, TweenInfo.new(0.1, Enum.EasingStyle.Quad), {
+		Size = UDim2.new(0, 32, 0, 32)
+	}):Play()
+
+	visible = not visible
+	if visible then
+		frame.Size = UDim2.new(0, 0, 0, 0)
+		frame.Visible = true
+		TweenService:Create(frame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+			Size = UDim2.new(0, 400, 0, 250)
+		}):Play()
+	else
+		local shrinkTween = TweenService:Create(frame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In), {
+			Size = UDim2.new(0, 0, 0, 0)
+		})
+		shrinkTween:Play()
+		shrinkTween.Completed:Wait()
+		frame.Visible = false
+	end
+end)
+
+-- Rainbow Border
 spawn(function()
 	local hue = 0
 	while true do
 		hue = (hue + 0.005) % 1
 		local color = Color3.fromHSV(hue, 1, 1)
 		if frame.Visible then
-			TweenService:Create(uiStroke, TweenInfo.new(0.1, Enum.EasingStyle.Linear), {
-				Color = color
-			}):Play()
+			TweenService:Create(uiStroke, TweenInfo.new(0.1, Enum.EasingStyle.Linear), {Color = color}):Play()
 		end
-		TweenService:Create(buttonStroke, TweenInfo.new(0.1, Enum.EasingStyle.Linear), {
-			Color = color
-		}):Play()
+		TweenService:Create(buttonStroke, TweenInfo.new(0.1, Enum.EasingStyle.Linear), {Color = color}):Play()
+
+		for _, child in ipairs(frame:GetChildren()) do
+			if child:IsA("TextButton") or child:IsA("Frame") then
+				local stroke = child:FindFirstChildOfClass("UIStroke")
+				if stroke then
+					stroke.Color = color
+				end
+			end
+		end
 		wait(0.05)
 	end
 end)
+
+-- Tabs and Pages
+local tabNames = {
+	"Home", "Update", "Esp", "Emotes", "Custom",
+	"Keybinds", "Teleport", "Combat", "Auto",
+	"Visual", "Settings", "Credits"
+}
+
+local pages = {}
+local currentPage = nil
+
+for i, name in ipairs(tabNames) do
+	local tab = Instance.new("TextButton")
+	tab.Name = name .. "Tab"
+	tab.Text = name
+	tab.Size = UDim2.new(0, 90, 0, 25)
+	tab.Position = UDim2.new(0, 10 + ((i-1)%2)*190, 0, 10 + math.floor((i-1)/2)*30)
+	tab.BackgroundTransparency = 1
+	tab.BorderSizePixel = 0
+	tab.TextColor3 = Color3.fromRGB(255, 255, 255)
+	tab.Font = Enum.Font.Arcade
+	tab.TextSize = 14
+	tab.AutoButtonColor = false
+	tab.Parent = frame
+
+	local tabStroke = Instance.new("UIStroke")
+	tabStroke.Thickness = 2
+	tabStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	tabStroke.Color = Color3.fromRGB(255, 0, 0)
+	tabStroke.Parent = tab
+
+	local tabCorner = Instance.new("UICorner")
+	tabCorner.CornerRadius = UDim.new(0, 0)
+	tabCorner.Parent = tab
+
+	local page = Instance.new("Frame")
+	page.Name = name .. "Page"
+	page.Size = UDim2.new(1, -20, 1, -20)
+	page.Position = UDim2.new(0, 10, 0, 10)
+	page.BackgroundTransparency = 1
+	page.Visible = (i == 1)
+	page.Parent = frame
+	pages[name] = page
+
+	local pageStroke = Instance.new("UIStroke")
+	pageStroke.Thickness = 2
+	pageStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	pageStroke.Color = Color3.fromRGB(255, 0, 0)
+	pageStroke.Parent = page
+
+	local titleLabel = Instance.new("TextLabel")
+	titleLabel.Size = UDim2.new(1, 0, 0, 40)
+	titleLabel.Position = UDim2.new(0, 0, 0, 0)
+	titleLabel.BackgroundTransparency = 1
+	titleLabel.Text = name .. " Page"
+	titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+	titleLabel.Font = Enum.Font.Arcade
+	titleLabel.TextSize = 24
+	titleLabel.Parent = page
+
+	-- Hover highlight
+	tab.MouseEnter:Connect(function()
+		TweenService:Create(tab, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
+			TextColor3 = Color3.fromRGB(255, 255, 0)
+		}):Play()
+	end)
+	tab.MouseLeave:Connect(function()
+		TweenService:Create(tab, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
+			TextColor3 = Color3.fromRGB(255, 255, 255)
+		}):Play()
+	end)
+
+	-- Tab button click
+	tab.MouseButton1Click:Connect(function()
+		tabClickSound:Play()
+
+		if currentPage and currentPage ~= page then
+			-- Fade out + slide left old page
+			local oldPage = currentPage
+			local fadeOut = TweenService:Create(oldPage, TweenInfo.new(0.3), {
+				BackgroundTransparency = 1
+			})
+			local slideOut = TweenService:Create(oldPage, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+				Position = UDim2.new(-1, 10, 0, 10)
+			})
+			fadeOut:Play()
+			slideOut:Play()
+			fadeOut.Completed:Wait()
+			oldPage.Visible = false
+			oldPage.Position = UDim2.new(0, 10, 0, 10)
+		end
+
+		-- Fade in + slide in new page
+		page.Visible = true
+		page.BackgroundTransparency = 1
+		page.Position = UDim2.new(1, 10, 0, 10)
+		TweenService:Create(page, TweenInfo.new(0.3), {
+			BackgroundTransparency = 0
+		}):Play()
+		TweenService:Create(page, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+			Position = UDim2.new(0, 10, 0, 10)
+		}):Play()
+
+		currentPage = page
+	end)
+end
+
+currentPage = pages["Home"]
