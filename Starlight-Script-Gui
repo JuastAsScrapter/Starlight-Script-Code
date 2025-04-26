@@ -1,30 +1,32 @@
+--// Services
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
 local player = Players.LocalPlayer
 
--- TweenInfos
+--// TweenInfos
 local fastTweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 local popTweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
 local fadeTweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Linear)
 
--- GUI Setup
+--// GUI Setup
 local gui = Instance.new("ScreenGui")
 gui.Name = "RainbowPixelGui"
 gui.ResetOnSpawn = false
 gui.Parent = player:WaitForChild("PlayerGui")
 
--- Glow Effect (Optional)
+--// Glow Effect
 local glowFrame = Instance.new("ImageLabel")
 glowFrame.Size = UDim2.new(0, 450, 0, 300)
 glowFrame.Position = UDim2.new(0.5, -225, 0.5, -150)
 glowFrame.BackgroundTransparency = 1
-glowFrame.Image = "rbxassetid://yourGlowEffectID" -- replace with a nice blurred glow asset
+glowFrame.Image = "rbxassetid://7134575148" -- Glow Effect ID
 glowFrame.ImageTransparency = 0.85
 glowFrame.ZIndex = 0
 glowFrame.Parent = gui
 
--- Main Frame
+--// Main Frame
 local frame = Instance.new("Frame")
 frame.Size = UDim2.new(0, 400, 0, 250)
 frame.Position = UDim2.new(0.5, -200, 0.5, -125)
@@ -45,19 +47,27 @@ uiStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 uiStroke.Color = Color3.fromRGB(255, 0, 0)
 uiStroke.Parent = frame
 
--- Pop-In Animation
-frame.Size = UDim2.new(0, 0, 0, 0)
-TweenService:Create(frame, popTweenInfo, {
-	Size = UDim2.new(0, 400, 0, 250)
-}):Play()
+--// Draggle Icon (Added Here)
+local draggleIcon = Instance.new("ImageLabel")
+draggleIcon.Name = "DraggleIcon"
+draggleIcon.Size = UDim2.new(0, 24, 0, 24)
+draggleIcon.Position = UDim2.new(1, -30, 0, 5)
+draggleIcon.BackgroundTransparency = 1
+draggleIcon.Image = "rbxassetid://14012507007" -- Draggle Icon ID
+draggleIcon.ZIndex = 3
+draggleIcon.Parent = frame
 
--- Toggle Button
+--// Pop-In Animation
+frame.Size = UDim2.new(0, 0, 0, 0)
+TweenService:Create(frame, popTweenInfo, {Size = UDim2.new(0, 400, 0, 250)}):Play()
+
+--// Toggle Button
 local toggleButton = Instance.new("ImageButton")
 toggleButton.Name = "ToggleRainbowGUI"
 toggleButton.Size = UDim2.new(0, 32, 0, 32)
 toggleButton.Position = UDim2.new(0, 15, 0, 15)
 toggleButton.BackgroundTransparency = 1
-toggleButton.Image = "rbxassetid://71341445196625"
+toggleButton.Image = "rbxassetid://7134144519"
 toggleButton.ZIndex = 2
 toggleButton.Parent = gui
 
@@ -77,7 +87,7 @@ glowStroke.Transparency = 1
 glowStroke.Color = Color3.fromRGB(255, 255, 255)
 glowStroke.Parent = toggleButton
 
--- Sounds
+--// Sounds
 local clickSound = Instance.new("Sound")
 clickSound.SoundId = "rbxassetid://12221967"
 clickSound.Volume = 1
@@ -98,7 +108,7 @@ whooshSound.SoundId = "rbxassetid://9120705982"
 whooshSound.Volume = 0.5
 whooshSound.Parent = gui
 
--- Hover Glow
+--// Hover Glow
 toggleButton.MouseEnter:Connect(function()
 	TweenService:Create(glowStroke, fastTweenInfo, {Transparency = 0.5}):Play()
 	hoverSound:Play()
@@ -108,17 +118,17 @@ toggleButton.MouseLeave:Connect(function()
 	TweenService:Create(glowStroke, fastTweenInfo, {Transparency = 1}):Play()
 end)
 
--- Toggle GUI
+--// Toggle GUI
 local visible = true
 toggleButton.MouseButton1Click:Connect(function()
 	clickSound:Play()
 
 	TweenService:Create(toggleButton, fastTweenInfo, {Size = UDim2.new(0, 28, 0, 28)}):Play()
-	wait(0.1)
+	task.wait(0.1)
 	TweenService:Create(toggleButton, fastTweenInfo, {Size = UDim2.new(0, 32, 0, 32)}):Play()
 
 	if visible then
-		-- Fade out frame
+		-- Hide
 		TweenService:Create(toggleButton, fadeTweenInfo, {ImageTransparency = 0.5}):Play()
 		local shrinkTween = TweenService:Create(frame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In), {
 			Size = UDim2.new(0, 0, 0, 0)
@@ -127,18 +137,16 @@ toggleButton.MouseButton1Click:Connect(function()
 		shrinkTween.Completed:Wait()
 		frame.Visible = false
 	else
-		-- Fade in frame
+		-- Show
 		frame.Size = UDim2.new(0, 0, 0, 0)
 		frame.Visible = true
 		TweenService:Create(toggleButton, fadeTweenInfo, {ImageTransparency = 0}):Play()
-		TweenService:Create(frame, popTweenInfo, {
-			Size = UDim2.new(0, 400, 0, 250)
-		}):Play()
+		TweenService:Create(frame, popTweenInfo, {Size = UDim2.new(0, 400, 0, 250)}):Play()
 	end
 	visible = not visible
 end)
 
--- Rainbow Color Cycling
+--// Rainbow Color Cycling
 local hue = 0
 RunService.Heartbeat:Connect(function(deltaTime)
 	hue = (hue + deltaTime * 0.5) % 1
@@ -159,7 +167,7 @@ RunService.Heartbeat:Connect(function(deltaTime)
 	end
 end)
 
--- Tabs & Pages
+--// Tabs & Pages
 local tabNames = {
 	"Home", "Update", "Esp", "Emotes", "Custom",
 	"Keybinds", "Teleport", "Combat", "Auto",
@@ -220,7 +228,6 @@ for i, name in ipairs(tabNames) do
 	titleLabel.TextSize = 24
 	titleLabel.Parent = page
 
-	-- Hover highlight
 	tab.MouseEnter:Connect(function()
 		TweenService:Create(tab, fastTweenInfo, {TextColor3 = Color3.fromRGB(255, 255, 0)}):Play()
 	end)
@@ -228,7 +235,6 @@ for i, name in ipairs(tabNames) do
 		TweenService:Create(tab, fastTweenInfo, {TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
 	end)
 
-	-- Tab button click
 	tab.MouseButton1Click:Connect(function()
 		tabClickSound:Play()
 		whooshSound:Play()
@@ -244,7 +250,6 @@ for i, name in ipairs(tabNames) do
 			oldPage.Position = UDim2.new(0, 10, 0, 10)
 		end
 
-		-- Page Mini Pop
 		page.Visible = true
 		page.BackgroundTransparency = 1
 		page.Position = UDim2.new(1, 10, 0, 10)
@@ -258,3 +263,68 @@ for i, name in ipairs(tabNames) do
 end
 
 currentPage = pages["Home"]
+
+--// Dragging System with Save Position
+local dragging = false
+local dragInput
+local dragStart
+local startPos
+
+local savedValues = player:FindFirstChild("SavedGUIValues")
+if not savedValues then
+	savedValues = Instance.new("Folder")
+	savedValues.Name = "SavedGUIValues"
+	savedValues.Parent = player
+end
+
+local positionValue = savedValues:FindFirstChild("FramePosition")
+if not positionValue then
+	positionValue = Instance.new("Vector3Value")
+	positionValue.Name = "FramePosition"
+	positionValue.Value = Vector3.new(frame.Position.X.Scale, frame.Position.X.Offset, frame.Position.Y.Offset)
+	positionValue.Parent = savedValues
+end
+
+local function applySavedPosition()
+	local saved = positionValue.Value
+	frame.Position = UDim2.new(saved.X, saved.Y, 0.5, saved.Z)
+end
+applySavedPosition()
+
+local function updateDrag(input)
+	local delta = input.Position - dragStart
+	local newPosition = UDim2.new(
+		startPos.X.Scale,
+		startPos.X.Offset + delta.X,
+		startPos.Y.Scale,
+		startPos.Y.Offset + delta.Y
+	)
+	frame.Position = newPosition
+	positionValue.Value = Vector3.new(newPosition.X.Scale, newPosition.X.Offset, newPosition.Y.Offset)
+end
+
+frame.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = frame.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+frame.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		dragInput = input
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		updateDrag(input)
+	end
+end)
