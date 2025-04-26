@@ -1,0 +1,49 @@
+-- LocalScript inside StarterGui
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+gui.Name = "RainbowCircleIcon"
+
+-- Circle Frame
+local circle = Instance.new("Frame")
+circle.Size = UDim2.new(0, 100, 0, 100)
+circle.Position = UDim2.new(0.5, -50, 0.5, -50)
+circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+circle.BackgroundTransparency = 0 -- fully opaque
+circle.AnchorPoint = Vector2.new(0.5, 0.5)
+circle.Parent = gui
+circle.Name = "Circle"
+circle.ClipsDescendants = true
+
+-- Make it circular
+local corner = Instance.new("UICorner", circle)
+corner.CornerRadius = UDim.new(1, 0)
+
+-- Rainbow Outline
+local stroke = Instance.new("UIStroke", circle)
+stroke.Thickness = 4
+stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+-- Animate rainbow effect
+task.spawn(function()
+	local hue = 0
+	while true do
+		stroke.Color = ColorSequence.new{
+			ColorSequenceKeypoint.new(0, Color3.fromHSV(hue, 1, 1)),
+			ColorSequenceKeypoint.new(1, Color3.fromHSV((hue + 0.1) % 1, 1, 1))
+		}
+		hue = (hue + 0.01) % 1
+		task.wait(0.05)
+	end
+end)
+
+-- Star Image
+local star = Instance.new("ImageLabel")
+star.Size = UDim2.new(0.6, 0, 0.6, 0)
+star.Position = UDim2.new(0.2, 0, 0.2, 0)
+star.BackgroundTransparency = 1
+star.Image = "rbxassetid://3926305904" -- Example star icon from Roblox's built-in set
+star.ImageRectOffset = Vector2.new(964, 204)
+star.ImageRectSize = Vector2.new(36, 36)
+star.Parent = circle
